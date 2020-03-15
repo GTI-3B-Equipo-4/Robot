@@ -1,0 +1,8 @@
+<launch>
+    <node
+        pkg= "battery_state"
+        type= "battery_topic_suscriber.py"
+        name = "battery_topic_suscriber"
+        output= "screen">
+    </node>
+</launch>
