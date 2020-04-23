@@ -1,0 +1,5 @@
+int32 on
+int32 battery
+string lugar
+---
+bool success

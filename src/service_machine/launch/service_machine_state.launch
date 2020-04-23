@@ -1,0 +1,8 @@
+<launch>
+    <node
+        pkg = "service_machine"
+        type = "machine_state.py"
+        name = "service_machine"
+        output = "screen">
+    </node>
+</launch>
