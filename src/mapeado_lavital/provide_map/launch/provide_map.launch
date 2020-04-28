@@ -1,0 +1,10 @@
+<launch>
+    <arg name="map_file" default="/home/mawco/catkin_ws/map/vital/planta_baja.yaml"/>
+    <node
+        name="map_server"
+        type="map_server"
+        pkg="map_server"
+        args="$(arg map_file)">
+
+    </node>
+</launch>

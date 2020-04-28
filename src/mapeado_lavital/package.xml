@@ -1,0 +1,14 @@
+<?xmlversion="1.0"?>
+<package format="2">
+        <name>mapeado_lavital</name>
+        <version>1.2.1</version>
+        <description>ROS packages for the kinetic(metapackage)</description>
+        <license>Apache2.0</license>
+        <license>BSD</license>
+        <author email="matconol@epsg.upv.es">Matthew C.O</author>
+        <maintainer email="matconol@epsg.upv.es">Matthew C.O</maintainer>
+        <url type="website"></url>
+        <url type="repository">https://github.com/GTI-3B-Equipo-4/Robot</url>
+        <buildtool_depend>catkin</buildtool_depend>
+    <export><metapackage/></export>
+</package>
