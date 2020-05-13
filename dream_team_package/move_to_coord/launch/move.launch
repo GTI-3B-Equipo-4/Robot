@@ -1,8 +1,0 @@
-<launch>
-    <node
-        pkg = "move_to_coord"
-        type = "move_to_coord.py"
-        name = "move_to_coord"
-        output = "screen">
-    </node>
-</launch>

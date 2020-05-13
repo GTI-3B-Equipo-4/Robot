@@ -1,5 +1,5 @@
 <launch>
-    <arg name="map_file" default="/home/mawco/catkin_ws/map/vital/planta_baja.yaml"/>
+    <arg name="map_file" default="/home/mawco/catkin_ws/map/vital/oficinas.yaml"/>
     <node
         name="map_server"
         type="map_server"

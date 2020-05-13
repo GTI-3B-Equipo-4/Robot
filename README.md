@@ -20,14 +20,3 @@ Llamada al cliente
 terminal5: roslaunch servicio_cliente_dream_team cliente_dream_team.launch
 
 
-Para llamar al servicio de move_to_coords:
-
-terminal1: roscore
-
-terminal2: roslaunch turtlebot3_gazebo vital.launch
-
-terminal3: roslaunch move_to_coords move.launch
-
-terminal4: rosservice call /move_to_coord "on:0 battery:0 coordenadaX: 1 coordenadaY:1 coordenadaZ: 0 orientationX: 0 orientationY: 0 orientationZ: 0 orientationW: 0"
-
-
