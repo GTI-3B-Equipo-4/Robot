@@ -4,8 +4,17 @@
     <arg name="map_file" default="/home/mawco/catkin_ws/map/vital/oficinas.yaml"/>
     <arg name="open_rviz" default="true"/>
     <arg name="rviz_config" default="/home/mawco/catkin_ws/src/turtlebot3/turtlebot3_navigation/rviz/turtlebot3_navigation.rviz"/>
+    
+    <!-- Posición inicial del robot en Gazebo -->
+    <arg name="init_pose" value="-x -14 -y -12 -z 0" />
 
-    <!-- Turtlebot3 -->
+    <!-- Nombre del robot en Gazebo -->
+    <arg name="robot_name" value="turtlebot3" />
+
+    <!-- Modelo turtlebot3 urdf -->
+    <param name="robot_description" command="$(find xacro)/xacro --inorder '$(find servicio_cliente_dream_team)/urdf/turtlebot3_burger.urdf.xacro'" />
+    
+    <!-- Turtlebot3 'NOTA: conexión de control remoto en web' -->
     <include file="/home/mawco/catkin_ws/src/turtlebot3/turtlebot3_bringup/launch/turtlebot3_remote.launch">
         <arg name="model" value="$(arg model)"/>
     </include>
@@ -13,7 +22,7 @@
     <!-- Map server 'NOTA: nos proporciaona el mapa'-->
     <include file="/home/mawco/catkin_ws/src/provide_map/launch/provide_map.launch"/>
 
-    <!-- Battery State -->
+    <!-- Machine State 'NOTA: inicio de el servicio de la maquina de estados'-->
     <include file="/home/mawco/catkin_ws/src/service_machine/launch/service_machine_state.launch"/>
 
     <!-- AMCL -->
@@ -23,6 +32,13 @@
     <include file="/home/mawco/catkin_ws/src/turtlebot3/turtlebot3_navigation/launch/move_base.launch">
         <arg name="model" value="$(arg model)"/>
     </include>
+
+    <!-- Inicio del mundo en Gazebo -->
+    <node name="gazebo" pkg="gazebo_ros" type="gazebo" args="$(find servicio_cliente_dream_team)/worlds/vital-v3.world" respawn="false" output="screen"/>
+    <!-- Spawn Robot Turtlebot3 (with video camera) -->
+    <node name="spawn_turtlebot3_model" pkg="gazebo_ros" type="spawn_model"
+        args="$(arg init_pose)  -urdf -param robot_description -model $(arg robot_name)"
+        respawn="false" output="screen" />
 
     <!-- RVIZ -->
     <group if="$(arg open_rviz)">

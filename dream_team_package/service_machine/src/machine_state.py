@@ -24,7 +24,7 @@ import cv2
 import numpy as np 
 from cv_bridge import CvBridge, CvBridgeError
 from sensor_msgs.msg import Image
-
+from DetectarPersonas import DetectarPersonas
 
 ## Puntos de la vital
 lugares = [
@@ -79,7 +79,7 @@ class Disconnected(State):
 class Patrullando(State): #si la bateria es baja, enviar un valor de batería es baja y ordenar que vaya a la plataforma
 
     def __init__(self, lugar):
-        State.__init__(self, outcomes=['1', '0'], input_keys=['input'], output_keys=[''])
+        State.__init__(self, outcomes=['0', '1', '2'], input_keys=['input'], output_keys=[''])
         
         lugarAlQueIr = []
         for l in lugares:
@@ -117,10 +117,13 @@ class Patrullando(State): #si la bateria es baja, enviar un valor de batería es
         rospy.loginfo("[Result] State: %d" % (nav_state))
         nav_state = 3
 
-
         if nav_state == 3:
             #Robot se pone en reposo
             return '1'
+        #elif persona == 2:
+            #enviamos un 2 para cambiar nuestro estado a Alerta, por la detección de un intruso
+            #detectorPersonas_obj.clean_up()
+        #    return '2'
         else:
             return '0'
 
@@ -131,6 +134,20 @@ class Cargando(State): #mientras no llegue a la carga completa
 
     def execute(self, userdata):
         sleep(1)
+        if userdata.input == 100: #si llega a la carga completa, activamos patrullando
+             return '1'
+        else:
+             return '0' #se queda cargando
+
+class Alerta(State): #mientras no llegue a la carga completa
+    def __init__(self):
+        State.__init__(self, outcomes=['1','0'], input_keys=['input'], output_keys=[''])
+
+    def execute(self, userdata):
+        sleep(1)
+
+
+
         if userdata.input == 100: #si llega a la carga completa, activamos patrullando
              return '1'
         else:
@@ -147,56 +164,14 @@ class Reposo(State):
              return '1'
         else:
              return '0'
-
-class DetectarPersonas(object):
-    
-    def __init__(self):
-        State.__init__(self, outcomes=['1','0'], input_keys=['input'], output_keys=[''])
-        self.bridge_object = CvBridge()
-        self.image_sub = rospy.Subscriber("/turtlebot3/camera/image_raw", Image, self.camera_callback)
-
-    def camera_callback(self, data):
-
-        try:
-            cv_image =  self.bridge_object.imgmsg_to_cv2(data, desired_encoding="bgr8")
-        except CvBridgeError as e:
-            print(e)
-
-        #detener_robot = False
-        #Calculamos la dimension de la imagen capturada
-        height, width, channels = cv_image.shape
-
-        #Definimos el clasificador
-        #ruta = "/home/mawco/catkin_ws/src/deteccion_personas/src/clasificadores/haarcascade_upperbody.xml"
-        ruta = "/home/mawco/catkin_ws/src/deteccion_personas/src/clasificadores/haarcascade_fullbody.xml"
-        #ruta = "/home/mawco/catkin_ws/src/deteccion_personas/src/clasificadores/haarcascade_frontalface_alt2.xml"
-        cascada = cv2.CascadeClassifier(ruta)
-
-        #Convertimos la imagen a escala de grises
-        #img_gray = cv2.cvtColor(cv_image, cv2.COLOR_BGR2HSV)
-        
-        cascada = cascada.detectMultiScale(cv_image, 1.1, 5)
-        intruso = 0
-        #Recoremos cada uno de los objetos que ha encontrado
-        for x,y,w,h in cascada:
-            
-            cv2.rectangle(cv_image, (x,y), (x+w, y+h),(255,0,0),3)
-
-        cv2.imshow("Original", cv_image)
-        cv2.waitKey(1)
-
-        
-        
-
-    def clean_up(self):
-        cv2.destroyAllWindows()
         
 
 def my_callback(request): #Funcion que se ejecuta cuando se llama al servicio
     
+    
     #rospy.loginfo("The service machine_state has been called")
     #print(request.direction)
-    sm = StateMachine(outcomes=['success','abort'])
+    sm = StateMachine(outcomes=['success','abort','alert'])
     #Recibir del servidor (ROSWEB)
     # si está on/off
     # batería
@@ -211,7 +186,8 @@ def my_callback(request): #Funcion que se ejecuta cuando se llama al servicio
         #StateMachine.add('Connected', Connected(), transitions={'1': 'Disconnected', '0': 'success'}, remapping={'input': 'on', 'output': ''})
         #StateMachine.add('Disconnected', Disconnected(), transitions={'1': 'success', '0': 'Connected'},remapping={'input': 'on', 'output': ''})
         StateMachine.add('Reposo', Reposo(), transitions={'1':'success','0':'Patrullando'}, remapping={'input':'on','output':''})
-        StateMachine.add('Patrullando', Patrullando(request.lugar), transitions={'1':'success','0':'Reposo'}, remapping={'input':['battery','lugar'],'output':''})
+        StateMachine.add('Patrullando', Patrullando(request.lugar), transitions={'0':'Reposo','1':'success','2':'Alerta'}, remapping={'input':['battery','lugar'],'output':''})
+        StateMachine.add('Alerta', Alerta(), transitions={'1':'success','0':'Patrullando'}, remapping={'input':['battery','lugar'],'output':''})
         StateMachine.add('Cargando', Cargando(), transitions={'1':'Patrullando','0':'success'}, remapping={'input':'battery','output':''})
         
     sm.execute()
@@ -222,7 +198,14 @@ def my_callback(request): #Funcion que se ejecuta cuando se llama al servicio
 
 if __name__=='__main__':
 
-    rospy.init_node('service_machine', anonymous=True) #se inicializa el nodo
-    rospy.Service('/machine_state', DreamTeamServiceMessage, my_callback) #se crea el servicio
+    #Creamos el objeto Detectar personas
+    detectorPersonas_obj = DetectarPersonas()
+    rate = rospy.Rate(5)
+
+    #Iniciamos el nodo de la maquina de estados
+    rospy.init_node('service_machine', anonymous=True)
+    #Se crea el servicio
+    rospy.Service('/machine_state', DreamTeamServiceMessage, my_callback)
+
     rospy.loginfo('Service /machine_state ready')
     rospy.spin() #mantiene el service abierto
