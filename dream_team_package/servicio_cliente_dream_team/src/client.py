@@ -1,11 +1,13 @@
 #! /usr/bin/env python
 # coding: utf-8
-#----------------------------------------------------------------------------
-# Autor: Matthew Conde Oltra
-# Fecha de creación: 22/04/2020
-# Fecha actualización: 22/04/2020
-#  client.py
-#----------------------------------------------------------------------------
+
+"""
+
+:AUTHOR:Matthew Conde Oltra
+:DATE:22/04/2020
+
+"""
+
 import rospy
 from dream_team_msgs.srv import DreamTeamServiceMessage, DreamTeamServiceMessageResponse, DreamTeamServiceMessageRequest
 from time import sleep
@@ -16,26 +18,39 @@ from nav_msgs.msg import Odometry
 from OdomTopicReader import OdomTopicReader
 from geometry_msgs.msg import Twist, Point, Pose
 
-def my_callback(request): #Funcion que se ejecuta cuando se llama al servicio
+
+"""
+
+:function_name:my_callback
+:input:request
+:descripcion:se ejecuta cuando se llama al servicio
+
+"""
+def my_callback(request):
     
     rospy.loginfo("The service navigation_stack has been called")
-    #print(request.direction)
-    
-    #Respuesta del servidor de mensajes
+   
     response = DreamTeamServiceMessageResponse()
     response.success = True
     return response
 
 
+
+"""
+
+:function_name:main
+:descripcion: inicializa el nodo, llama a la maquina de estados,crea la peticion y ejecuta la llamada al servidor
+
+"""
 def main():
 
-    rospy.init_node('client_dream_team', log_level=rospy.INFO) #Inicializamos el nodo
+    rospy.init_node('client_dream_team', log_level=rospy.INFO) 
 
-    #Llamada a la maquina de estados
+   
     machine_state = rospy.ServiceProxy('/machine_state', DreamTeamServiceMessage)
-    msg_request = DreamTeamServiceMessageRequest() #Creamos el objeto para la petición
+    msg_request = DreamTeamServiceMessageRequest() 
     rospy.loginfo("Llamando al servicio /machine_state")
-    result = machine_state(msg_request) #Ejecuta la llamada al servidor 
+    result = machine_state(msg_request) 
 
     ctrl_c = False
 
