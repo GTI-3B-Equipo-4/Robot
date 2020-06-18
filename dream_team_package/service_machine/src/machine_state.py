@@ -1,11 +1,11 @@
 #! /usr/bin/env python
 # coding: utf-8
-#----------------------------------------------------------------------------
-# Autor: Matthew Conde Oltra
-# Fecha de creación: 17/04/2020
-# Fecha actualización: 12/05/2020
-#   machine_state.py
-#----------------------------------------------------------------------------
+
+"""
+:FILE_NAME: machine_state.py
+:AUTHOR: Mathew Conde Oltra
+:DATE: 17/04/2020
+"""
 
 import rospy
 from dream_team_msgs.srv import DreamTeamServiceMessage, DreamTeamServiceMessageResponse, DreamTeamServiceMessageRequest
@@ -26,7 +26,10 @@ from cv_bridge import CvBridge, CvBridgeError
 from sensor_msgs.msg import Image
 
 
-## Puntos de la vital
+"""
+:OBJECT: lugares
+:DESCRIPTION: puntos de La Vital
+"""
 lugares = [
     ['Garita', (-10.42, -10.66, 0.001186), (0.0, 0.0, 1.0, 0.0)],
     ['Almacen', (-14.68, -8.4280, -0.000987), (0.0, 0.0, 1.0, 0.0)],
@@ -76,7 +79,11 @@ class Disconnected(State):
             return '0'
 
 
-class Patrullando(State): #si la bateria es baja, enviar un valor de batería es baja y ordenar que vaya a la plataforma
+"""
+:OBJECT: Clase Patrullando
+:DESCRIPTION: si la bateria es baja, enviar un valor de batería es baja y ordenar que vaya a la plataforma
+"""
+class Patrullando(State):
 
     def __init__(self, lugar):
         State.__init__(self, outcomes=['1', '0'], input_keys=['input'], output_keys=[''])
@@ -124,8 +131,11 @@ class Patrullando(State): #si la bateria es baja, enviar un valor de batería es
         else:
             return '0'
 
-
-class Cargando(State): #mientras no llegue a la carga completa
+"""
+:OBJECT: Clase Cargando
+:DESCRIPTION: mientras no llegue a la carga completa
+"""
+class Cargando(State):
     def __init__(self):
         State.__init__(self, outcomes=['1','0'], input_keys=['input'], output_keys=[''])
 
@@ -136,6 +146,10 @@ class Cargando(State): #mientras no llegue a la carga completa
         else:
              return '0' #se queda cargando
 
+"""
+:OBJECT: Clase Reposo
+:DESCRIPTION: mientras el robot este en reposo
+"""
 class Reposo(State):
     def __init__(self):
         State.__init__(self, outcomes=['1','0'], input_keys=['input'], output_keys=[''])
@@ -148,6 +162,10 @@ class Reposo(State):
         else:
              return '0'
 
+"""
+:OBJECT: Clase DetectarPersonas
+:DESCRIPTION:
+"""
 class DetectarPersonas(object):
     
     def __init__(self):
@@ -191,8 +209,11 @@ class DetectarPersonas(object):
     def clean_up(self):
         cv2.destroyAllWindows()
         
-
-def my_callback(request): #Funcion que se ejecuta cuando se llama al servicio
+"""
+:FUNCTION: my_callback()
+:DESCRIPTION: Funcion que se ejecuta cuando se llama al de machine state
+"""
+def my_callback(request):
     
     #rospy.loginfo("The service machine_state has been called")
     #print(request.direction)
