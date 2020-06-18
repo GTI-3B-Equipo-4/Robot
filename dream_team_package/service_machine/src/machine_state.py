@@ -42,6 +42,10 @@ def shutdownhook():
     rospy.loginfo("Robot apagado!")
     ctrl_c=True
 
+"""
+:OBJECT: Connected
+:DESCRIPTION: si el robot esta conectado
+"""
 class Connected(State):
     def __init__(self):
         State.__init__(self, outcomes=['1','0'], input_keys=['input'], output_keys=[''])
